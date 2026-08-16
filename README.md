@@ -1,1 +1,110 @@
-# PostCare
+# PostCare — AI Post-Operative Wound Care Platform
+
+Multi-agent post-operative care system: patients upload wound photos and daily logs; **MedSigLIP** assesses the wound; **RAG + safety rules + LLM agents** guide the patient and prioritize cases on the **clinician dashboard** (human-in-the-loop).
+
+> **Prototype / capstone** — not clinically validated. Safety thresholds and agent outputs require review by qualified clinicians.
+
+## Architecture
+
+```
+DEVELOPMENT (MLOps)                    PRODUCTION (MVP)
+─────────────────                      ─────────────────
+SurgWound dataset                      Patient UI
+       ↓                                      ↓
+training/ (Run 1 → Run 2)              Backend API
+       ↓                                      ↓
+models/medsiglip/                      MedSigLIP + context
+       ↓                                      ↓
+GitHub + MLflow lineage                Safety + RAG + location
+                                              ↓
+                                       Triage Agent
+                                              ↓
+                               ┌──────────────┴──────────────┐
+                               ↓                             ↓
+                        Patient Agent                 Clinician Agent
+                               ↓                             ↓
+                         Patient UI                  Clinician UI
+```
+
+## Repository structure
+
+```
+PostCare/
+├── backend/           FastAPI — routes, services, agents, schemas
+├── models/medsiglip/  Inference artifacts (config, thresholds, weights*)
+├── rag/documents/     RAG knowledge base (Phase 3)
+├── frontend/          Patient + clinician UIs (Phase 5)
+└── training/          MedSigLIP fine-tuning + MLOps (Run 1 / Run 2)
+```
+
+## Quick start — Phase 1 (wound API)
+
+### 1. Install dependencies
+
+```bash
+pip install -r requirements.txt
+pip install -r training/requirements.txt   # if training locally
+```
+
+### 2. Export trained model
+
+After Run 2 training completes:
+
+```bash
+python training/scripts/export_production_model.py
+```
+
+Set `HF_TOKEN` if weights are not yet exported (gated `google/medsiglip-448`).
+
+### 3. Run API
+
+From repo root:
+
+```bash
+uvicorn backend.main:app --reload
+```
+
+### 4. Test wound assessment
+
+```bash
+curl -X POST http://127.0.0.1:8000/wound/assess \
+  -F "image=@path/to/wound.jpg"
+```
+
+Health check: `GET /health` — reports whether MedSigLIP loaded.
+
+## MLOps & version control
+
+| Practice | Location |
+|----------|----------|
+| Experiment configs | `training/configs/run1_underfitting.yaml`, `run2_best.yaml` |
+| Run lineage (Run 1 underfit → Run 2 best) | `training/experiments/EXPERIMENT_LOG.md` |
+| MLflow tracking | `training/mlruns/` |
+| Model promotion | `training/scripts/export_production_model.py` → `models/medsiglip/` |
+| Version metadata | `models/medsiglip/postcare_config.json` (`model_version`, `training_run`) |
+| GitHub | https://github.com/SyedAshhadIbrar/PostCare |
+
+**Judges / reviewers:** Run 1 documents intentional underfitting; Run 2 shows iterative improvement with differential LR, 300 optimizer steps, and per-label Youden thresholds.
+
+## Build phases
+
+| Phase | Scope | Status |
+|-------|-------|--------|
+| 1 | `training/`, `models/`, wound API | **Implemented** |
+| 2 | Database + `/patient/case` | Stub |
+| 3 | RAG + safety integration | Stub |
+| 4 | Triage + patient + clinician agents | Stub |
+| 5 | Frontends | Placeholder |
+
+## Environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `HF_TOKEN` | Hugging Face auth for MedSigLIP download |
+| `POSTCARE_MODEL_DIR` | Override model path (default: `models/medsiglip`) |
+| `POSTCARE_DEVICE` | `cuda` or `cpu` |
+| `POSTCARE_DATABASE_URL` | Phase 2 DB connection |
+
+## License
+
+See [LICENSE](LICENSE).

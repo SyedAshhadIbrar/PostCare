@@ -221,3 +221,12 @@ __marimo__/
 mlruns/
 outputs/
 .tools/
+
+# Production model weights (config + thresholds stay in git)
+models/medsiglip/*.pt
+models/medsiglip/*.bin
+models/medsiglip/*.safetensors
+models/medsiglip/preprocessor_config.json
+
+# Local database (Phase 2)
+postcare.db
