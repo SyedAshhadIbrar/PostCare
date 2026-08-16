@@ -91,9 +91,9 @@ Health check: `GET /health` — reports whether MedSigLIP loaded.
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 1 | `training/`, `models/`, wound API | **Implemented** |
-| 2 | Database + `/patient/case` | Stub |
-| 3 | RAG + safety integration | Stub |
-| 4 | Triage + patient + clinician agents | Stub |
+| 2 | Database + `/patient/case` | **Implemented** (SQLite) |
+| 3 | RAG + safety integration | **Implemented** (keyword RAG) |
+| 4 | Triage + patient + clinician agents | **Implemented** |
 | 5 | Frontends | Placeholder |
 
 ## Environment variables

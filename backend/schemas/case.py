@@ -19,3 +19,9 @@ class PostCareCase(BaseModel):
     wound: WoundAssessment
     status: str = "submitted"
     clinician_priority: str | None = None
+    safety_flags: list[str] = Field(default_factory=list)
+    evidence: list[dict] = Field(default_factory=dict)
+    location_context: dict = Field(default_factory=dict)
+    triage: dict = Field(default_factory=dict)
+    patient_guidance: dict = Field(default_factory=dict)
+    clinician_summary: dict = Field(default_factory=dict)

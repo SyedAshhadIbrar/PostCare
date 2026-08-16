@@ -20,8 +20,12 @@ def triage_case(
     _ = (evidence, location_context)
 
     priority = "routine"
-    if safety_flags:
-        priority = "needs_review" if len(safety_flags) < 3 else "high"
+    if len(safety_flags) >= 3 or (
+        "high_reported_pain" in safety_flags and "visual_infection_signal" in safety_flags
+    ):
+        priority = "high"
+    elif safety_flags:
+        priority = "needs_review"
 
     return {
         "priority": priority,
