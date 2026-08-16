@@ -1,11 +1,5 @@
-# Patient frontend (Phase 5)
+# Patient mobile web app
 
-Planned stack: React or Next.js.
+Served at `http://127.0.0.1:8000/ui/patient/` when the API is running.
 
-Flow:
-1. Upload surgical wound photo
-2. Capture pain score, procedure, post-op day, symptoms
-3. POST to backend `/patient/case` (Phase 2)
-4. Display patient agent response
-
-Phase 1 uses API directly: `POST /wound/assess` with image upload.
+Tabs: **Recovery** (AI dashboard), **Log** (wound upload + check-in), **Meds** (local reminders), **Settings**.

@@ -43,13 +43,21 @@ def save_case(case: PostCareCase) -> PostCareCase:
     return case
 
 
+def _load_case(row: sqlite3.Row) -> PostCareCase:
+    data = json.loads(row["data"])
+    data["created_at"] = row["created_at"]
+    return PostCareCase.model_validate(data)
+
+
 def get_case(case_id: str) -> PostCareCase | None:
     init_db()
     with _connect() as conn:
-        row = conn.execute("SELECT data FROM cases WHERE case_id = ?", (case_id,)).fetchone()
+        row = conn.execute(
+            "SELECT data, created_at FROM cases WHERE case_id = ?", (case_id,)
+        ).fetchone()
     if not row:
         return None
-    return PostCareCase.model_validate(json.loads(row["data"]))
+    return _load_case(row)
 
 
 def update_case(case: PostCareCase) -> PostCareCase:
@@ -68,8 +76,8 @@ _PRIORITY_ORDER = {"high": 0, "needs_review": 1, "routine": 2}
 def list_cases() -> list[PostCareCase]:
     init_db()
     with _connect() as conn:
-        rows = conn.execute("SELECT data FROM cases").fetchall()
-    cases = [PostCareCase.model_validate(json.loads(row["data"])) for row in rows]
+        rows = conn.execute("SELECT data, created_at FROM cases").fetchall()
+    cases = [_load_case(row) for row in rows]
     cases.sort(key=lambda c: _PRIORITY_ORDER.get(c.clinician_priority or "routine", 9))
     return cases
 

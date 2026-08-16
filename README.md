@@ -7,23 +7,16 @@ Multi-agent post-operative care system: patients upload wound photos and daily l
 ## Architecture
 
 ```
-DEVELOPMENT (MLOps)                    PRODUCTION (MVP)
-─────────────────                      ─────────────────
-SurgWound dataset                      Patient UI
-       ↓                                      ↓
-training/ (Run 1 → Run 2)              Backend API
-       ↓                                      ↓
-models/medsiglip/                      MedSigLIP + context
-       ↓                                      ↓
-GitHub + MLflow lineage                Safety + RAG + location
-                                              ↓
-                                       Triage Agent
-                                              ↓
-                               ┌──────────────┴──────────────┐
-                               ↓                             ↓
-                        Patient Agent                 Clinician Agent
-                               ↓                             ↓
-                         Patient UI                  Clinician UI
+Patient UI (/ui/patient/)  ← flow starts here
+   │  1. Take wound photo + enter pain, procedure, symptoms
+   ▼
+Backend POST /patient/case
+   ├─ MedSigLIP wound assessment
+   ├─ Safety flags + RAG evidence
+   └─ PostCare-Gemini agents (triage → patient + clinician)
+   ▼
+Patient recovery dashboard          Clinician dashboard (/ui/clinician/)
+   (AI guidance)                      (priority queue + review)
 ```
 
 ## Repository structure
@@ -71,7 +64,12 @@ curl -X POST http://127.0.0.1:8000/wound/assess \
   -F "image=@path/to/wound.jpg"
 ```
 
-Health check: `GET /health` — reports whether MedSigLIP loaded.
+### 4. Open frontends (same server)
+
+| App | URL |
+|-----|-----|
+| Patient (mobile web) | http://127.0.0.1:8000/ui/patient/ |
+| Clinician dashboard | http://127.0.0.1:8000/ui/clinician/ |
 
 ## MLOps & version control
 
@@ -94,7 +92,7 @@ Health check: `GET /health` — reports whether MedSigLIP loaded.
 | 2 | Database + `/patient/case` | **Implemented** (SQLite) |
 | 3 | RAG + safety integration | **Implemented** (keyword RAG) |
 | 4 | Triage + patient + clinician agents | **Implemented** |
-| 5 | Frontends | Placeholder |
+| 5 | Frontends | **Implemented** (vanilla web) |
 
 ## Environment variables
 
@@ -104,6 +102,10 @@ Health check: `GET /health` — reports whether MedSigLIP loaded.
 | `POSTCARE_MODEL_DIR` | Override model path (default: `models/medsiglip`) |
 | `POSTCARE_DEVICE` | `cuda` or `cpu` |
 | `POSTCARE_DATABASE_URL` | Phase 2 DB connection |
+| `POSTCARE_GEMINI_API_KEY` | Google Gemini API key for PostCare-Gemini agents |
+| `POSTCARE_GEMINI_MODEL` | Gemini model id (default: `gemini-2.0-flash`) |
+
+Agents use **PostCare-Gemini** when `POSTCARE_GEMINI_API_KEY` is set; otherwise rule-based fallback (`PostCare-rules`).
 
 ## License
 

@@ -1,10 +1,9 @@
-# Clinician frontend (Phase 5)
+# Clinician dashboard
 
-Planned stack: React or Next.js dashboard.
+Dark admin UI inspired by clinical workflow systems. Served at `http://127.0.0.1:8000/ui/clinician/`.
 
-Features:
-- Priority-sorted case queue (`GET /clinician/cases`)
-- Case detail: wound image, MedSigLIP scores, AI summary, evidence
-- Review actions (`POST /clinician/cases/{id}/review`)
+**Site:** Pakistan Kidney and Liver Institute (Lahore) · Liver Transplant
 
-Human-in-the-loop: clinicians validate or override AI triage before patient-facing guidance is finalized.
+Sidebar: Dashboard, Patient Management, Referral Physician, Settings.
+
+Patient Management shows discharge / on-track / completed stats and a priority-sorted case table.

@@ -44,9 +44,12 @@ def _enrich_case(case: PostCareCase) -> PostCareCase:
 @router.post("/case", response_model=PostCareCase)
 async def create_case(
     image: UploadFile = File(...),
+    patient_name: str = Form(...),
     pain_score: int = Form(..., ge=0, le=10),
     procedure: str = Form(...),
     post_op_day: int = Form(..., ge=0),
+    consultant_surgeon: str | None = Form(None),
+    discharge_date: str | None = Form(None),
     location: str | None = Form(None),
     symptoms: str = Form(""),
 ):
@@ -60,9 +63,12 @@ async def create_case(
     case = PostCareCase(
         case_id=db.new_case_id(),
         patient=PatientContext(
+            patient_name=patient_name.strip(),
             pain_score=pain_score,
             procedure=procedure,
             post_op_day=post_op_day,
+            consultant_surgeon=consultant_surgeon or None,
+            discharge_date=discharge_date or None,
             location=location or None,
             symptoms=[s.strip() for s in symptoms.split(",") if s.strip()],
         ),

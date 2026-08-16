@@ -12,5 +12,5 @@ numpy>=1.24.0
 huggingface-hub>=0.23.0
 
 # Phase 2+ (uncomment when wired)
-# sqlalchemy>=2.0.0
-# psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0

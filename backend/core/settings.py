@@ -11,3 +11,6 @@ RAG_DOCUMENTS_DIR = REPO_ROOT / "rag" / "documents"
 
 HF_TOKEN = os.environ.get("HF_TOKEN")
 DEVICE = os.environ.get("POSTCARE_DEVICE", "cpu")
+
+POSTCARE_GEMINI_API_KEY = os.environ.get("POSTCARE_GEMINI_API_KEY") or os.environ.get("GEMINI_API_KEY")
+POSTCARE_GEMINI_MODEL = os.environ.get("POSTCARE_GEMINI_MODEL", "gemini-2.0-flash")
