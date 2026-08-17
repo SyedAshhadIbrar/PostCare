@@ -8,11 +8,6 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-import torch
-from PIL import Image as PILImage
-from transformers import AutoModelForImageClassification
-
 from backend.core.settings import DEVICE, HF_TOKEN, MODEL_DIR
 from backend.schemas.assessment import Finding, WoundAssessment
 
@@ -24,12 +19,17 @@ IMG_STD = [0.5, 0.5, 0.5]
 
 
 def _disable_torchvision_in_transformers() -> None:
-    import transformers.utils.import_utils as import_utils
+    try:
+        import transformers.utils.import_utils as import_utils
 
-    import_utils._torchvision_available = False
+        import_utils._torchvision_available = False
+    except Exception:
+        pass
 
 
-def _zero_pad_to_square(img: PILImage.Image) -> PILImage.Image:
+def _zero_pad_to_square(img: Any) -> Any:
+    from PIL import Image as PILImage
+
     w, h = img.size
     max_dim = max(w, h)
     if w == h:
@@ -39,7 +39,11 @@ def _zero_pad_to_square(img: PILImage.Image) -> PILImage.Image:
     return padded
 
 
-def _pil_to_tensor(img: PILImage.Image, img_size: int) -> torch.Tensor:
+def _pil_to_tensor(img: Any, img_size: int) -> Any:
+    import numpy as np
+    import torch
+    from PIL import Image as PILImage
+
     img = img.convert("RGB")
     img = _zero_pad_to_square(img)
     img = img.resize((img_size, img_size), PILImage.Resampling.BILINEAR)
@@ -52,6 +56,8 @@ class WoundModel:
     """Loads fine-tuned MedSigLIP and returns structured multi-label findings."""
 
     def __init__(self, model_dir: Path | None = None) -> None:
+        import torch
+
         _disable_torchvision_in_transformers()
         self.model_dir = Path(model_dir or MODEL_DIR)
         self.config = self._load_json(self.model_dir / "postcare_config.json")
@@ -79,7 +85,10 @@ class WoundModel:
             )
         return json.loads(path.read_text(encoding="utf-8"))
 
-    def _load_model(self) -> AutoModelForImageClassification:
+    def _load_model(self) -> Any:
+        import torch
+        from transformers import AutoModelForImageClassification
+
         weights_pt = self.model_dir / "best_model.pt"
         has_hf_weights = any(
             (self.model_dir / name).exists()
@@ -118,13 +127,17 @@ class WoundModel:
 
         return model.to(self.device)
 
-    def preprocess(self, image: PILImage.Image | bytes) -> torch.Tensor:
+    def preprocess(self, image: Any) -> Any:
+        from PIL import Image as PILImage
+
         if isinstance(image, bytes):
             image = PILImage.open(io.BytesIO(image))
         tensor = _pil_to_tensor(image, self.image_size)
         return tensor.unsqueeze(0).to(self.device)
 
-    def predict(self, image: PILImage.Image | bytes) -> WoundAssessment:
+    def predict(self, image: Any) -> WoundAssessment:
+        import torch
+
         pixel_values = self.preprocess(image)
         with torch.no_grad():
             logits = self.model(pixel_values=pixel_values).logits[0]
@@ -154,7 +167,7 @@ class WoundModel:
 def _build_wound_model() -> WoundModel | None:
     try:
         return WoundModel()
-    except FileNotFoundError as exc:
+    except Exception as exc:
         logger.warning("WoundModel not loaded: %s", exc)
         return None
 

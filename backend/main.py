@@ -21,7 +21,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,6 +35,15 @@ app.add_middleware(
 app.include_router(wound_router)
 app.include_router(patient_router)
 app.include_router(clinician_router)
+
+from backend.routes.patient import upload_patient_log
+
+app.add_api_route(
+    "/api/patients/upload",
+    upload_patient_log,
+    methods=["POST"],
+    tags=["patient"],
+)
 
 app.mount("/ui/patient", StaticFiles(directory=REPO_ROOT / "frontend" / "patient", html=True), name="patient-ui")
 app.mount("/ui/clinician", StaticFiles(directory=REPO_ROOT / "frontend" / "clinician", html=True), name="clinician-ui")

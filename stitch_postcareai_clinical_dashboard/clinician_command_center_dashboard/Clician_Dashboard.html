@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PostCareAI - Clinician Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed": "#2a1700",
+                      "error": "#ffb4ab",
+                      "on-background": "#dde2f3",
+                      "surface-container": "#1a202c",
+                      "secondary-fixed-dim": "#ffb95f",
+                      "error-container": "#93000a",
+                      "secondary-fixed": "#ffddb8",
+                      "on-error-container": "#ffdad6",
+                      "tertiary-fixed": "#89f5e7",
+                      "on-primary-fixed": "#410002",
+                      "surface-dim": "#0e131f",
+                      "surface": "#0e131f",
+                      "inverse-surface": "#dde2f3",
+                      "on-tertiary-container": "#ddfff9",
+                      "on-secondary": "#472a00",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "tertiary-fixed-dim": "#6bd8cb",
+                      "tertiary-container": "#008075",
+                      "on-secondary-fixed-variant": "#653e00",
+                      "on-primary-container": "#fff6f5",
+                      "surface-container-lowest": "#080e1a",
+                      "primary": "#ffb4ab",
+                      "secondary": "#ffb95f",
+                      "surface-bright": "#343946",
+                      "on-error": "#690005",
+                      "surface-variant": "#2f3542",
+                      "background": "#0e131f",
+                      "inverse-on-surface": "#2b303d",
+                      "surface-container-highest": "#2f3542",
+                      "on-primary": "#690005",
+                      "outline-variant": "#5c403c",
+                      "on-tertiary": "#003732",
+                      "on-surface-variant": "#e6bdb8",
+                      "primary-fixed": "#ffdad6",
+                      "surface-container-high": "#242a36",
+                      "inverse-primary": "#bf0715",
+                      "surface-tint": "#ffb4ab",
+                      "primary-container": "#dc2626",
+                      "on-primary-fixed-variant": "#93000b",
+                      "surface-container-low": "#161c28",
+                      "on-surface": "#dde2f3",
+                      "primary-fixed-dim": "#ffb4ab",
+                      "outline": "#ac8884",
+                      "on-secondary-container": "#5b3800",
+                      "tertiary": "#6bd8cb",
+                      "secondary-container": "#ee9800",
+                      "on-tertiary-fixed": "#00201d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "container-max": "1440px",
+                      "unit": "4px",
+                      "margin-desktop": "40px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-display": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg-mobile": [
+                              "Hanken Grotesk"
+                      ],
+                      "body-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-label": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-display": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-label": [
+                              "12px",
+                              {
+                                      "lineHeight": "1",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { background-color: #000000; color: #dde2f3; }
+        .glass-card {
+            background-color: rgba(26, 32, 44, 0.8);
+            border: 1px solid #2f3542;
+            backdrop-filter: blur(12px);
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 180, 171, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0); }
+        }
+        .monospaced-text { font-family: 'JetBrains Mono', monospace; }
+      </style>
+</head>
+<body class="h-screen w-screen overflow-hidden flex font-body-md text-body-md selection:bg-tertiary-container selection:text-on-tertiary-container">
+<!-- Sidebar Component (SideNavBar) -->
+<nav class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container-lowest/80 dark:bg-surface-container-lowest/80 backdrop-blur-md border-r border-surface-variant flex flex-col h-full py-gutter z-50">
+<div class="px-6 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[28px]">medical_services</span>
+                PostCareAI
+            </h1>
+<span class="font-data-label text-data-label text-tertiary mt-1 block tracking-wider uppercase">Medical Command</span>
+</div>
+<ul class="flex-1 px-4 space-y-2">
+<li>
+<a class="flex items-center justify-between px-4 py-3 rounded-lg text-tertiary font-bold border-r-2 border-tertiary bg-tertiary-container/10 transition-all duration-150 ease-in-out" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span>Dashboard</span>
+</div>
+</a>
+</li>
+<li>
+<a class="flex items-center justify-between px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">group</span>
+<span>Patients</span>
+</div>
+<span class="bg-surface-variant text-on-surface text-xs font-bold px-2 py-0.5 rounded-full">8</span>
+</a>
+</li>
+<li>
+<a class="flex items-center justify-between px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">emergency_home</span>
+<span>Alerts</span>
+</div>
+<span class="bg-error text-on-error text-xs font-bold px-2 py-0.5 rounded-full">2</span>
+</a>
+</li>
+<li>
+<a class="flex items-center justify-between px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant/50 hover:text-on-surface transition-all duration-150 ease-in-out" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</div>
+</a>
+</li>
+</ul>
+<div class="px-6 mt-auto">
+<button class="w-full bg-error-container text-on-error-container py-3 rounded border border-error-container/50 hover:bg-error hover:text-on-error transition-colors flex items-center justify-center gap-2 mb-6 font-bold text-sm tracking-wider uppercase">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+                Emergency Protocols
+            </button>
+<div class="pt-4 border-t border-surface-variant">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A macro studio portrait of a professional female clinician looking authoritative in a dark environment with blue rim lighting, highly detailed medical setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX_JlLs554qfDKHhqdYRtVFmoAyxCiN9plmSj8XULplZ2cBrHqMsEcFTib5O9BsdCWM0AQcXSEovW98ugY_Vlu6GOZyf_iqJqHv6viN6UI4LeXpQCMXTk6Vl_awChheIVW1h1bzACu_EE7PHB4-gzCtGfzVfujlXcBOLOokLwtwxw1ce3tOFN4l_3zQNyZ8CFnWoltweZELEr7gj-Zcp3HRfHZbxIfncQr0hqsE2FeCyTHb0bsAv3z"/>
+</div>
+<div>
+<div class="font-bold text-sm text-on-surface">Dr. Chen</div>
+<div class="text-xs text-on-surface-variant">Surgery Dept</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">help_outline</span>
+                        Support
+                    </a>
+<a class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-2 text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+                        Logout
+                    </a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[280px] flex-1 flex flex-col h-full bg-background overflow-y-auto pb-12 relative z-10">
+<!-- Top App Bar Component (TopNavBar) -->
+<header class="sticky top-0 w-full h-16 bg-surface/80 dark:bg-surface/80 backdrop-blur-md border-b border-surface-variant flex justify-between items-center px-gutter z-40">
+<h2 class="font-headline-md text-headline-md font-bold text-primary">PostCareAI Dashboard</h2>
+<div class="flex items-center gap-6">
+<div class="font-data-display text-data-display text-tertiary flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+<span id="real-time-clock">14:02 EST</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 active:scale-90">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 active:scale-90 relative">
+<span class="material-symbols-outlined">notifications_active</span>
+<span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-error rounded-full border border-surface"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors scale-95 active:scale-90">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<div class="px-gutter pt-8 max-w-container-max mx-auto w-full flex-1">
+<!-- Row 1: KPIs -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+<div class="glass-card rounded-xl p-5 border-t border-t-white/10 relative overflow-hidden group hover:border-tertiary/50 transition-colors">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary/5 rounded-full blur-2xl group-hover:bg-tertiary/10 transition-colors"></div>
+<div class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">monitor_heart</span>
+                        Active Patients
+                    </div>
+<div class="font-data-display text-[32px] font-bold text-on-surface leading-none mt-4">48</div>
+</div>
+<div class="glass-card rounded-xl p-5 border-t border-t-white/10 relative overflow-hidden group hover:border-secondary/50 transition-colors">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-secondary/5 rounded-full blur-2xl group-hover:bg-secondary/10 transition-colors"></div>
+<div class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">pending_actions</span>
+                        Pending AI Reviews
+                    </div>
+<div class="font-data-display text-[32px] font-bold text-secondary leading-none mt-4">8</div>
+</div>
+<div class="glass-card rounded-xl p-5 border-t border-t-white/10 border-error/30 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-error/10 rounded-full blur-2xl"></div>
+<div class="text-error font-data-label text-data-label uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                        Urgent Escalations
+                        <div class="w-2 h-2 rounded-full bg-error ml-auto pulse-dot"></div>
+</div>
+<div class="font-data-display text-[32px] font-bold text-error leading-none mt-4">2</div>
+</div>
+<div class="glass-card rounded-xl p-5 border-t border-t-white/10 relative overflow-hidden group hover:border-tertiary/50 transition-colors">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-tertiary/5 rounded-full blur-2xl group-hover:bg-tertiary/10 transition-colors"></div>
+<div class="text-on-surface-variant font-data-label text-data-label uppercase tracking-wider mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified_user</span>
+                        Compliance Rate
+                    </div>
+<div class="font-data-display text-[32px] font-bold text-tertiary leading-none mt-4">94.2<span class="text-[20px]">%</span></div>
+</div>
+</section>
+<!-- Row 2: Analytics -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<!-- Left Card: Chart Mockup -->
+<div class="md:col-span-2 glass-card rounded-xl p-6 border-t border-t-white/10 flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-[18px] font-bold text-on-surface">Patient Check-ins vs Flags (7-Day)</h3>
+<button class="text-on-surface-variant hover:text-tertiary text-sm flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span> Export
+                        </button>
+</div>
+<div class="flex-1 flex items-end gap-2 mt-4 relative h-48 border-b border-l border-surface-variant pb-2 pl-2">
+<!-- Y Axis Labels -->
+<div class="absolute -left-6 top-0 bottom-0 flex flex-col justify-between font-data-label text-data-label text-on-surface-variant items-end pr-2 text-[10px]">
+<span>50</span>
+<span>25</span>
+<span>0</span>
+</div>
+<!-- Bars -->
+<div class="flex-1 flex flex-col justify-end items-center group">
+<div class="w-full flex gap-1 justify-center items-end h-[60%]">
+<div class="w-3 bg-surface-bright rounded-t group-hover:bg-surface-variant transition-colors" style="height: 100%"></div>
+<div class="w-3 bg-secondary/50 rounded-t group-hover:bg-secondary/70 transition-colors" style="height: 20%"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant text-[10px] mt-2">MON</span>
+</div>
+<div class="flex-1 flex flex-col justify-end items-center group">
+<div class="w-full flex gap-1 justify-center items-end h-[80%]">
+<div class="w-3 bg-surface-bright rounded-t group-hover:bg-surface-variant transition-colors" style="height: 100%"></div>
+<div class="w-3 bg-secondary/50 rounded-t group-hover:bg-secondary/70 transition-colors" style="height: 30%"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant text-[10px] mt-2">TUE</span>
+</div>
+<div class="flex-1 flex flex-col justify-end items-center group">
+<div class="w-full flex gap-1 justify-center items-end h-[75%]">
+<div class="w-3 bg-surface-bright rounded-t group-hover:bg-surface-variant transition-colors" style="height: 100%"></div>
+<div class="w-3 bg-secondary/50 rounded-t group-hover:bg-secondary/70 transition-colors" style="height: 25%"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant text-[10px] mt-2">WED</span>
+</div>
+<div class="flex-1 flex flex-col justify-end items-center group">
+<div class="w-full flex gap-1 justify-center items-end h-[90%]">
+<div class="w-3 bg-surface-bright rounded-t group-hover:bg-surface-variant transition-colors" style="height: 100%"></div>
+<div class="w-3 bg-error/50 rounded-t group-hover:bg-error/70 transition-colors" style="height: 45%"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant text-[10px] mt-2">THU</span>
+</div>
+<div class="flex-1 flex flex-col justify-end items-center group">
+<div class="w-full flex gap-1 justify-center items-end h-[65%]">
+<div class="w-3 bg-surface-bright rounded-t group-hover:bg-surface-variant transition-colors" style="height: 100%"></div>
+<div class="w-3 bg-secondary/50 rounded-t group-hover:bg-secondary/70 transition-colors" style="height: 15%"></div>
+</div>
+<span class="font-data-label text-data-label text-on-surface-variant text-[10px] mt-2">FRI</span>
+</div>
+</div>
+</div>
+<!-- Right Card: Distribution -->
+<div class="glass-card rounded-xl p-6 border-t border-t-white/10 flex flex-col">
+<h3 class="font-headline-md text-[18px] font-bold text-on-surface mb-6">Triage Distribution</h3>
+<div class="space-y-6 flex-1 flex flex-col justify-center">
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-tertiary font-bold">Routine</span>
+<span class="font-data-display text-data-display text-on-surface text-sm">70%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 70%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-secondary font-bold">Review</span>
+<span class="font-data-display text-data-display text-on-surface text-sm">25%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 25%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-error font-bold flex items-center gap-1">Urgent <div class="w-1.5 h-1.5 rounded-full bg-error pulse-dot"></div></span>
+<span class="font-data-display text-data-display text-on-surface text-sm">5%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Row 3: Priority Queue -->
+<section class="glass-card rounded-xl p-6 border-t border-t-white/10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-[18px] font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-error">priority_high</span>
+                        Priority Triage Queue
+                    </h3>
+<button class="text-tertiary hover:text-tertiary-fixed-dim text-sm font-bold flex items-center gap-1 transition-colors">
+                        View Full Queue <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-variant text-on-surface-variant font-data-label text-data-label uppercase tracking-wider">
+<th class="pb-3 px-4 font-bold">Patient ID</th>
+<th class="pb-3 px-4 font-bold">Timeline</th>
+<th class="pb-3 px-4 font-bold">Flagged Symptoms</th>
+<th class="pb-3 px-4 font-bold">Status</th>
+<th class="pb-3 px-4 font-bold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-surface-variant/50 hover:bg-surface-variant/20 transition-colors">
+<td class="py-4 px-4 font-data-display text-data-display text-[14px] text-on-surface">PT-8942-X</td>
+<td class="py-4 px-4 text-on-surface-variant">Post-Op Day 5</td>
+<td class="py-4 px-4 text-on-surface font-medium">High Fever + Discharge</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 bg-error/10 border border-error/20 text-error px-2.5 py-1 rounded text-xs font-bold tracking-wide uppercase">
+<div class="w-1.5 h-1.5 rounded-full bg-error pulse-dot"></div>
+                                        Critical
+                                    </span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="bg-error text-on-error hover:bg-error-container hover:text-on-error-container transition-colors px-4 py-1.5 rounded text-sm font-bold border border-error/50">
+                                        Open Case
+                                    </button>
+</td>
+</tr>
+<tr class="border-b border-surface-variant/50 hover:bg-surface-variant/20 transition-colors">
+<td class="py-4 px-4 font-data-display text-data-display text-[14px] text-on-surface">PT-1102-Y</td>
+<td class="py-4 px-4 text-on-surface-variant">Post-Op Day 2</td>
+<td class="py-4 px-4 text-on-surface font-medium">Excessive Pain Score (9/10)</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 border border-secondary/20 text-secondary px-2.5 py-1 rounded text-xs font-bold tracking-wide uppercase">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                                        Elevated
+                                    </span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="bg-surface-bright text-on-surface hover:bg-surface-variant transition-colors px-4 py-1.5 rounded text-sm font-bold border border-outline-variant">
+                                        Review
+                                    </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="py-4 px-4 font-data-display text-data-display text-[14px] text-on-surface">PT-4491-A</td>
+<td class="py-4 px-4 text-on-surface-variant">Post-Op Day 14</td>
+<td class="py-4 px-4 text-on-surface font-medium">Missed check-in (48h)</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1.5 bg-secondary/10 border border-secondary/20 text-secondary px-2.5 py-1 rounded text-xs font-bold tracking-wide uppercase">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+                                        Warning
+                                    </span>
+</td>
+<td class="py-4 px-4 text-right">
+<button class="bg-surface-bright text-on-surface hover:bg-surface-variant transition-colors px-4 py-1.5 rounded text-sm font-bold border border-outline-variant">
+                                        Contact
+                                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Simple script to update the clock just to make the UI feel alive if left open
+        setInterval(() => {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            // Basic padding
+            if(hours < 10) hours = "0" + hours;
+            if(minutes < 10) minutes = "0" + minutes;
+            document.getElementById('real-time-clock').innerText = `${hours}:${minutes} EST`;
+        }, 60000); // Update every minute
+    </script>
+</body></html>

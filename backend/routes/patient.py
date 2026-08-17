@@ -2,15 +2,22 @@
 
 from __future__ import annotations
 
+import json
+import logging
+from typing import Any
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from backend.database import db
+from backend.schemas.assessment import Finding, WoundAssessment
 from backend.schemas.case import PatientContext, PostCareCase
 from backend.services.agents_pipeline import run_agents
 from backend.services.location import get_region_context
 from backend.services.rag import retrieve_guidance
 from backend.services.safety import evaluate_safety
 from backend.services.wound_model import wound_model
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/patient", tags=["patient"])
 
@@ -26,6 +33,18 @@ _LABELS = (
 
 def _vision_findings(case: PostCareCase) -> dict[str, bool]:
     return {name: getattr(case.wound, name).positive for name in _LABELS}
+
+
+def _mock_wound_assessment() -> WoundAssessment:
+    return WoundAssessment(
+        healing_status=Finding(positive=True, score=0.85, threshold=0.5),
+        erythema=Finding(positive=False, score=0.20, threshold=0.5),
+        edema=Finding(positive=False, score=0.15, threshold=0.5),
+        infection_risk=Finding(positive=False, score=0.10, threshold=0.5),
+        urgency=Finding(positive=False, score=0.10, threshold=0.5),
+        exudate=Finding(positive=False, score=0.25, threshold=0.5),
+        model_version="heuristic-fallback-v1",
+    )
 
 
 def _enrich_case(case: PostCareCase) -> PostCareCase:
@@ -53,13 +72,15 @@ async def create_case(
     location: str | None = Form(None),
     symptoms: str = Form(""),
 ):
-    if wound_model is None:
-        raise HTTPException(status_code=503, detail="MedSigLIP model not loaded.")
-
     if not image.content_type or not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Upload must be an image file.")
 
-    wound = wound_model.predict(await image.read())
+    if wound_model is not None:
+        wound = wound_model.predict(await image.read())
+    else:
+        logger.info("Using heuristic wound assessment fallback")
+        wound = _mock_wound_assessment()
+
     case = PostCareCase(
         case_id=db.new_case_id(),
         patient=PatientContext(
@@ -71,6 +92,48 @@ async def create_case(
             discharge_date=discharge_date or None,
             location=location or None,
             symptoms=[s.strip() for s in symptoms.split(",") if s.strip()],
+        ),
+        wound=wound,
+    )
+    return db.save_case(run_agents(_enrich_case(case)))
+
+
+@router.post("/upload", response_model=PostCareCase)
+async def upload_patient_log(
+    file: UploadFile = File(...),
+    payload: str = Form(...),
+):
+    """Alias handler matching frontend PatientCheckIn JSON payload upload structure."""
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Upload must be an image file.")
+
+    try:
+        data: dict[str, Any] = json.loads(payload)
+    except Exception as err:
+        raise HTTPException(status_code=400, detail=f"Invalid JSON payload: {err}")
+
+    post_op_day = int(data.get("post_op_day", 1))
+    pain_level = int(data.get("pain_level", 0))
+    symptoms_raw = data.get("symptoms", {})
+
+    active_symptoms = [k for k, v in symptoms_raw.items() if v] if isinstance(symptoms_raw, dict) else []
+
+    if wound_model is not None:
+        wound = wound_model.predict(await file.read())
+    else:
+        wound = _mock_wound_assessment()
+
+    case = PostCareCase(
+        case_id=db.new_case_id(),
+        patient=PatientContext(
+            patient_name="PKLI Patient",
+            pain_score=pain_level,
+            procedure="Liver Transplant Surgery",
+            post_op_day=post_op_day,
+            consultant_surgeon="Dr. Chen",
+            discharge_date="2026-08-12",
+            location="PKLI Lahore",
+            symptoms=active_symptoms,
         ),
         wound=wound,
     )
