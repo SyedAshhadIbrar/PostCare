@@ -230,3 +230,8 @@ models/medsiglip/preprocessor_config.json
 
 # Local database (Phase 2)
 postcare.db
+
+
+node_modules/
+venv/
+__pycache__/
