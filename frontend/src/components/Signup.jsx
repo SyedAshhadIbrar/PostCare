@@ -1,17 +1,18 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const API_BASE = "http://localhost:8000";
 
-export default function Login() {
-  const [role, setRole] = useState("clinician"); 
+export default function Signup() {
+  const [role, setRole] = useState("patient");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -20,22 +21,21 @@ export default function Login() {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("role", role);
+    formData.append("name", name);
 
     try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
+      const response = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.detail || "Login failed");
+        throw new Error(data.detail || "Registration failed");
       }
 
-      const user = await response.json();
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      if (user.role === "clinician") {
+      // Automatically log them in after signup based on role
+      if (role === "clinician") {
         navigate("/clinician");
       } else {
         navigate("/patient");
@@ -53,9 +53,9 @@ export default function Login() {
         <div className="absolute top-0 left-0 right-0 h-1 bg-[#00ffcc]"></div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-100 tracking-tight">PostCare<span className="text-[#00ffcc]">AI</span></h1>
-          <p className="text-sm text-gray-400 mt-2">Secure Access Portal</p>
+          <p className="text-sm text-gray-400 mt-2">Create your account</p>
         </div>
-        <div className="flex bg-[#121212] rounded-lg p-1 mb-8 border border-[#333333]">
+        <div className="flex bg-[#121212] rounded-lg p-1 mb-6 border border-[#333333]">
           <button
             onClick={() => setRole("patient")}
             className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
@@ -84,10 +84,23 @@ export default function Login() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              {role === "patient" ? "Patient ID" : "Clinician Email"}
+              Full Name
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-[#121212] border border-[#333333] text-gray-100 rounded-lg py-3 px-4 focus:ring-1 focus:ring-[#00ffcc] focus:border-[#00ffcc] transition-colors outline-none"
+              placeholder="e.g. John Doe"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              {role === "patient" ? "Patient ID or Email" : "Clinician Email"}
             </label>
             <input
               type="text"
@@ -95,12 +108,12 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#121212] border border-[#333333] text-gray-100 rounded-lg py-3 px-4 focus:ring-1 focus:ring-[#00ffcc] focus:border-[#00ffcc] transition-colors outline-none"
-              placeholder={role === "patient" ? "e.g. PT-1029" : "dr.name@pkli.org.pk"}
+              placeholder={role === "patient" ? "e.g. pt.john@example.com" : "dr.name@pkli.org.pk"}
             />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              Access PIN
+              Create PIN / Password
             </label>
             <input
               type="password"
@@ -114,11 +127,21 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#00ffcc] text-black font-bold py-3 rounded-lg hover:bg-[#00ccaa] transition-colors flex items-center justify-center gap-2 mt-4 disabled:opacity-50"
+            className="w-full bg-[#00ffcc] text-black font-bold py-3 rounded-lg hover:bg-[#00ccaa] transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-50"
           >
-            {loading ? "Authenticating..." : "Secure Login"}
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-400">
+            Already have an account?{" "}
+            <Link to="/" className="text-[#00ffcc] font-semibold hover:underline">
+              Log in here
+            </Link>
+          </p>
+        </div>
+
         <p className="text-center text-[10px] text-gray-500 uppercase tracking-widest mt-8">
           HIPAA Compliant Connection
         </p>

@@ -3,6 +3,7 @@ import Login from "./components/Login";
 import ClinicianLayout from "./components/ClinicianLayout";
 import Dashboard from "./components/Dashboard";
 import PatientManagement from "./components/PatientManagement";
+import AddUser from "./components/AddUser";
 import PatientLayout from "./components/PatientLayout";
 import PatientDashboard from "./components/PatientDashboard";
 import PatientCheckIn from "./components/PatientCheckIn";
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/clinician" element={<ClinicianLayout />}>
           <Route index element={<Dashboard />} />
           <Route path="queue" element={<PatientManagement />} />
+          <Route path="add-user" element={<AddUser />} />
         </Route>
 
         {/* Patient Flow with Sidebar Layout */}

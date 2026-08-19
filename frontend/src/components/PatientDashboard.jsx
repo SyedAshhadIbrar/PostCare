@@ -1,6 +1,40 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+const API_BASE = "http://localhost:8000";
+
 export default function PatientDashboard() {
+  const [status, setStatus] = useState({
+    post_op_day: 1,
+    surgeon: "Dr. Chen",
+    flags: [],
+    has_case: false
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch(`${API_BASE}/patient/status`);
+        if (response.ok) {
+          setStatus(await response.json());
+        }
+      } catch (err) {
+        console.error("PatientDashboard: fetch failed —", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const totalDays = 14;
+  const progressPercent = Math.min((status.post_op_day / totalDays) * 100, 100);
+  
+  // Basic recovery score calculation
+  const hasCriticalFlags = status.flags.length > 0;
+  const recoveryScore = hasCriticalFlags ? 75 : 94;
+
   const medications = [
     {
       name: "Tacrolimus (Prograf)",
@@ -56,10 +90,10 @@ export default function PatientDashboard() {
               <span className="material-symbols-outlined text-[18px] text-[#00ffcc]">calendar_today</span>
             </div>
             <div className="text-2xl font-bold text-gray-100 mt-2">
-              Day 5 <span className="text-xs text-gray-400 font-normal">of 14</span>
+              {loading ? "..." : `Day ${status.post_op_day}`} <span className="text-xs text-gray-400 font-normal">of {totalDays}</span>
             </div>
             <div className="w-full bg-[#121212] h-1.5 rounded-full mt-3 overflow-hidden border border-[#333333]">
-              <div className="bg-[#00ffcc] h-full rounded-full" style={{ width: "35%" }}></div>
+              <div className="bg-[#00ffcc] h-full rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
             </div>
           </div>
 
@@ -68,10 +102,12 @@ export default function PatientDashboard() {
               <span>Recovery Score</span>
               <span className="material-symbols-outlined text-[18px] text-[#00ffcc]">monitoring</span>
             </div>
-            <div className="text-2xl font-bold text-[#00ffcc] mt-2">
-              94% <span className="text-xs text-gray-400 font-normal">On Track</span>
+            <div className={`text-2xl font-bold mt-2 ${hasCriticalFlags ? 'text-amber-400' : 'text-[#00ffcc]'}`}>
+              {loading ? "..." : `${recoveryScore}%`} <span className="text-xs text-gray-400 font-normal">{hasCriticalFlags ? 'Needs Review' : 'On Track'}</span>
             </div>
-            <p className="text-[11px] text-gray-400 mt-2">No critical flags reported</p>
+            <p className={`text-[11px] mt-2 ${hasCriticalFlags ? 'text-amber-400' : 'text-gray-400'}`}>
+              {loading ? "..." : (hasCriticalFlags ? status.flags.join(", ") : "No critical flags reported")}
+            </p>
           </div>
 
           <div className="bg-[#1e1e1e] border border-[#333333] rounded-xl p-5 hover:border-[#00ffcc]/50 transition-colors">
@@ -88,7 +124,7 @@ export default function PatientDashboard() {
               <span>Lead Surgeon</span>
               <span className="material-symbols-outlined text-[18px] text-[#00ffcc]">badge</span>
             </div>
-            <div className="text-lg font-bold text-gray-100 mt-2 truncate">Dr. Chen</div>
+            <div className="text-lg font-bold text-gray-100 mt-2 truncate">{loading ? "..." : status.surgeon}</div>
             <p className="text-[11px] text-gray-400 truncate mt-1">Transplant Surgery</p>
           </div>
         </div>

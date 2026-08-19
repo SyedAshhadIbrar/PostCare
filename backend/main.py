@@ -10,6 +10,7 @@ from backend.database import db
 from backend.routes.clinician import router as clinician_router
 from backend.routes.patient import router as patient_router
 from backend.routes.wound import router as wound_router
+from backend.routes.auth import router as auth_router
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(wound_router)
 app.include_router(patient_router)
 app.include_router(clinician_router)
+app.include_router(auth_router)
 
 from backend.routes.patient import upload_patient_log
 

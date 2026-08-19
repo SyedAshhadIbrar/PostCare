@@ -1,10 +1,30 @@
+import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 export default function PatientLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("Patient Portal");
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        if (parsed.name) {
+          // Extract first name
+          const firstName = parsed.name.split(" ")[0];
+          setUserName(firstName);
+        }
+      } catch (err) {
+        console.error("Failed to parse user from localStorage:", err);
+      }
+    }
+  }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
     navigate("/");
   };
 
@@ -18,7 +38,7 @@ export default function PatientLayout() {
   return (
     <div className="h-screen w-screen overflow-hidden flex bg-[#121212] text-gray-100 font-sans">
       {/* Sidebar Component */}
-      <nav className="fixed left-0 top-0 h-screen w-[240px] bg-[#1e1e1e] border-r border-[#333333] flex flex-col h-full py-6 z-50">
+      <nav className="fixed left-0 top-0 h-screen w-[240px] bg-[#1e1e1e] border-r border-[#333333] flex flex-col h-full pt-6 pb-4 z-50">
         <div className="px-5 mb-6">
           <h1 className="text-xl font-bold text-gray-100 flex items-center gap-2">
             <span className="material-symbols-outlined text-[#00ffcc] text-[26px]">monitor_heart</span>
@@ -61,9 +81,25 @@ export default function PatientLayout() {
           })}
         </ul>
 
-        <div className="px-4 mt-auto">
-          <div className="pt-3 border-t border-[#333333]">
-            <div className="flex items-center gap-3 mb-3">
+        <div className="px-4 mt-auto relative">
+          {profileOpen && (
+            <div className="absolute bottom-[calc(100%+8px)] left-4 right-4 bg-[#1e1e1e] border border-[#333333] rounded-lg shadow-xl py-1 z-50">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-[#2a2a2a] flex items-center gap-2 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  logout
+                </span>
+                Logout
+              </button>
+            </div>
+          )}
+          <div
+            onClick={() => setProfileOpen(!profileOpen)}
+            className="pt-3 border-t border-[#333333] cursor-pointer hover:bg-[#2a2a2a]/30 rounded-lg p-1.5 transition-colors"
+          >
+            <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[#2a2a2a] flex items-center justify-center border border-[#333333] shrink-0">
                 <span className="material-symbols-outlined text-[#00ffcc] text-[20px]">
                   person
@@ -71,32 +107,12 @@ export default function PatientLayout() {
               </div>
               <div className="min-w-0">
                 <div className="font-bold text-sm text-gray-100 truncate">
-                  Patient Portal
+                  {userName}
                 </div>
                 <div className="text-xs text-[#00ffcc] truncate">
                   Active Care Plan
                 </div>
               </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <a
-                className="text-gray-400 hover:text-[#00ffcc] transition-colors flex items-center gap-1.5 text-xs"
-                href="#"
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  help_outline
-                </span>
-                Support
-              </a>
-              <button
-                onClick={handleLogout}
-                className="text-gray-400 hover:text-[#00ffcc] transition-colors flex items-center gap-1.5 text-xs bg-transparent border-none p-0 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[16px]">
-                  logout
-                </span>
-                Logout
-              </button>
             </div>
           </div>
         </div>

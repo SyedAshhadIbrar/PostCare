@@ -156,3 +156,25 @@ async def get_case(case_id: str):
     if case is None:
         raise HTTPException(status_code=404, detail="Case not found.")
     return case
+
+@router.get("/status")
+async def get_patient_status():
+    cases = db.list_cases()
+    if not cases:
+        return {
+            "post_op_day": 1,
+            "surgeon": "Dr. Chen",
+            "flags": [],
+            "has_case": False
+        }
+    
+    # Sort by created_at descending (assuming ISO format strings)
+    cases.sort(key=lambda c: c.created_at or "", reverse=True)
+    latest_case = cases[0]
+    
+    return {
+        "post_op_day": latest_case.patient.post_op_day,
+        "surgeon": latest_case.patient.consultant_surgeon or "Dr. Chen",
+        "flags": latest_case.safety_flags or [],
+        "has_case": True
+    }

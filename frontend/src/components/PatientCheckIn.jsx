@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const API_BASE = "http://localhost:8000";
 
@@ -14,6 +14,22 @@ export default function PatientCheckIn() {
   });
   const [imageFile, setImageFile] = useState(null);
   const [status, setStatus] = useState("idle");
+
+  useEffect(() => {
+    async function fetchLatestDay() {
+      try {
+        const response = await fetch(`${API_BASE}/patient/status`);
+        if (response.ok) {
+          const data = await response.json();
+          // Set to the next day if a case exists, otherwise day 1
+          setDay(data.has_case ? data.post_op_day + 1 : 1);
+        }
+      } catch (err) {
+        console.error("PatientCheckIn: fetch failed —", err);
+      }
+    }
+    fetchLatestDay();
+  }, []);
 
   const toggleSymptom = (key) => {
     setSymptoms((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -106,22 +122,20 @@ export default function PatientCheckIn() {
           <div className="bg-[#1e1e1e] border border-[#333333] rounded-xl p-6 space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Days Post-Surgery
+                Days Post-Surgery (Auto-Assigned)
               </label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5, 6, 7].map((num) => (
-                  <button
+                  <div
                     key={num}
-                    type="button"
-                    onClick={() => setDay(num)}
-                    className={`flex-1 py-2.5 rounded text-sm font-bold transition-colors ${
+                    className={`flex-1 py-2.5 rounded text-sm font-bold text-center transition-colors cursor-default ${
                       day === num
-                        ? "bg-[#00ffcc] text-black"
-                        : "bg-[#2a2a2a] text-gray-400 hover:bg-[#333333]"
+                        ? "bg-[#00ffcc] text-black shadow-[0_0_15px_rgba(0,255,204,0.3)]"
+                        : "bg-[#2a2a2a] text-gray-500 opacity-60"
                     }`}
                   >
                     Day {num}
-                  </button>
+                  </div>
                 ))}
               </div>
             </div>

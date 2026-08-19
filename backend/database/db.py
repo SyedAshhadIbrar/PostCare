@@ -30,6 +30,17 @@ def init_db() -> None:
             )
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id TEXT PRIMARY KEY,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                role TEXT NOT NULL,
+                name TEXT NOT NULL
+            )
+            """
+        )
 
 
 def save_case(case: PostCareCase) -> PostCareCase:
@@ -113,3 +124,35 @@ if __name__ == "__main__":
     loaded = get_case(sample.case_id)
     assert loaded and loaded.case_id == sample.case_id
     print(f"ok: {sample.case_id}")
+
+import hashlib
+
+def _hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def create_user(email: str, password: str, role: str, name: str) -> dict | None:
+    init_db()
+    user_id = f"U-{uuid.uuid4().hex[:8].upper()}"
+    pwd_hash = _hash_password(password)
+    try:
+        with _connect() as conn:
+            conn.execute(
+                "INSERT INTO users (id, email, password_hash, role, name) VALUES (?, ?, ?, ?, ?)",
+                (user_id, email, pwd_hash, role, name)
+            )
+        return {"id": user_id, "email": email, "role": role, "name": name}
+    except sqlite3.IntegrityError:
+        return None  # Email already exists
+
+def authenticate_user(email: str, password: str) -> dict | None:
+    init_db()
+    pwd_hash = _hash_password(password)
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT id, email, role, name FROM users WHERE email = ? AND password_hash = ?",
+            (email, pwd_hash)
+        ).fetchone()
+        
+    if row:
+        return dict(row)
+    return None
